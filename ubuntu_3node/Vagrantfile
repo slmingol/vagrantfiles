@@ -1,0 +1,69 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+##############
+### References
+# - https://www.vagrantup.com/docs/vagrantfile/machine_settings.html
+# - https://www.vagrantup.com/docs/vagrantfile/tips.html
+# - https://www.vagrantup.com/docs/networking/forwarded_ports.html
+##############
+
+#unless Vagrant.has_plugin?("HostManager")
+#  raise 'HostManager plugin not installed!'
+#end
+
+require 'digest/sha1'
+
+uniqID = "_" + (Digest::SHA1.hexdigest Dir.pwd()).slice(0..8)
+image  = "ubuntu/xenial64"
+
+if Vagrant::Util::Platform.windows? then
+  interfaces = [ 
+    "en0: Wi-Fi (AirPort)",    
+    "en1: Wi-Fi (AirPort)",
+  ]
+else
+  interfaces = [ 
+    "en0: Wi-Fi (AirPort)",    
+    "en1: Wi-Fi (AirPort)",
+  ]
+end
+
+
+Vagrant.configure("2") do |config|
+  vboxName1 = "box-101"
+  config.vm.define "#{vboxName1}" do |box|
+    box.vm.box = "#{image}"
+    #box.vm.network :private_network, ip: "192.168.56.101"
+    box.vm.network :public_network, use_dhcp_assigned_default_route: true, bridge: interfaces
+    box.vm.provider :virtualbox do |v|
+      v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+      v.customize ["modifyvm", :id, "--memory", 512]
+      v.customize ["modifyvm", :id, "--name", "#{vboxName1}#{uniqID}"]
+    end
+  end
+
+  vboxName2 = "box-102"
+  config.vm.define "#{vboxName2}" do |box|
+    box.vm.box = "#{image}"
+    #box.vm.network :private_network, ip: "192.168.56.103"
+    box.vm.network :public_network, use_dhcp_assigned_default_route: true, bridge: interfaces
+    box.vm.provider :virtualbox do |v|
+      v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+      v.customize ["modifyvm", :id, "--memory", 512]
+      v.customize ["modifyvm", :id, "--name", "#{vboxName2}#{uniqID}"]
+    end
+  end
+
+  vboxName3 = "box-103"
+  config.vm.define "#{vboxName3}" do |box|
+    box.vm.box = "#{image}"
+    #box.vm.network :private_network, ip: "192.168.56.103"
+    box.vm.network :public_network, use_dhcp_assigned_default_route: true, bridge: interfaces
+    box.vm.provider :virtualbox do |v|
+      v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+      v.customize ["modifyvm", :id, "--memory", 512]
+      v.customize ["modifyvm", :id, "--name", "#{vboxName3}#{uniqID}"]
+    end
+  end
+end
