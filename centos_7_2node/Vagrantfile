@@ -1,0 +1,86 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+
+##############
+### References
+# - https://www.vagrantup.com/docs/vagrantfile/machine_settings.html
+# - https://www.vagrantup.com/docs/vagrantfile/tips.html
+# - https://www.vagrantup.com/docs/networking/forwarded_ports.html
+##############
+
+#unless Vagrant.has_plugin?("HostManager")
+#  raise 'HostManager plugin not installed!'
+#end
+
+require 'digest/sha1'
+
+uniqID = "_" + (Digest::SHA1.hexdigest Dir.pwd()).slice(0..8)
+#image  = "ubuntu/xenial64"
+image  = "centos/7"
+
+if Vagrant::Util::Platform.windows? then
+  interfaces = [
+    "Intel(R) 82583V Gigabit Network Connection",
+    "Intel(R) 82579LM Gigabit Network Connection",
+  ]
+elsif Vagrant::Util::Platform.darwin? then
+  interfaces = [
+    "en0: Wi-Fi (AirPort)",
+    "en1: Wi-Fi (AirPort)",
+  ]
+else
+  interfaces = [
+    "eth0",
+    "eth1",
+    "wlan0",
+  ]
+end
+
+# networking "things"
+#front.vm.network :private_network, ip: "192.168.56.101"
+#front.vm.network :public_network, use_dhcp_assigned_default_route: true, bridge: interfaces
+#v.customize ["modifyvm", :id, "--nicpromisc1", "allow-all"]
+
+Vagrant.configure("2") do |config|
+  vboxName1 = "box-101"
+  hostname1 = "box101"
+  config.vm.define "#{vboxName1}" do |front|
+    front.vm.box = "#{image}"
+    front.vm.network :public_network, bridge: interfaces
+    front.vm.provider :virtualbox do |v|
+      v.customize ["modifyvm", :id, "--memory", 512]
+      v.customize ["modifyvm", :id, "--name", "#{hostname1}#{uniqID}"]
+    end
+    config.vm.provision :shell, :inline => <<-END
+      sudo ip route delete default dev eth0 || true
+      sudo /usr/bin/sed -e '$a\\' -e 'DEFROUTE=no' -e '/DEFROUTE/d' -i /etc/sysconfig/network-scripts/ifcfg-eth0
+    END
+  end
+
+  vboxName2 = "box-102"
+  hostname2 = "box102"
+  config.vm.define "#{vboxName2}" do |front|
+    front.vm.box = "#{image}"
+    front.vm.network :public_network, bridge: interfaces
+    front.vm.provider :virtualbox do |v|
+      v.customize ["modifyvm", :id, "--memory", 512]
+      v.customize ["modifyvm", :id, "--name", "#{hostname2}#{uniqID}"]
+    end
+    config.vm.provision :shell, :inline => <<-END
+      sudo ip route delete default dev eth0 || true
+      sudo /usr/bin/sed -e '$a\\' -e 'DEFROUTE=no' -e '/DEFROUTE/d' -i /etc/sysconfig/network-scripts/ifcfg-eth0
+    END
+  end
+end
+
+### REF: https://www.if-not-true-then-false.com/2010/install-virtualbox-guest-additions-on-fedora-centos-red-hat-rhel/
+
+### install kernel + extras
+# $ yum update -y kernel*
+# $ yum install gcc kernel-devel kernel-headers dkms make bzip2 perl
+
+### Guest addtions
+# $ curl http://download.virtualbox.org/virtualbox/5.2.14/VBoxGuestAdditions_5.2.14.iso -O
+# $ mount -o loop VBoxGuestAdditions_5.2.14.iso /mnt
+# $ bash /mnt/
