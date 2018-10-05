@@ -393,3 +393,71 @@ Using project "default".
 ### I2. Enable metrics service
 ### I3. Enable logging service
 ### I4. Enable TLS/SSL certificate for console.192.168.56.101.sslip.io
+```
+TASK [openshift_service_catalog : Set Controller Manager deployment] **********************************************************************************************************************************************************************
+changed: [10.0.2.15]
+
+TASK [openshift_service_catalog : Set Controller Manager service] *************************************************************************************************************************************************************************
+fatal: [10.0.2.15]: FAILED! => {"changed": false, "msg": {"cmd": "/usr/bin/oc get service controller-manager -o json -n kube-service-catalog", "results": [{}], "returncode": 1, "stderr": "Unable to connect to the server: net/http: TLS handshake timeout\n", "stdout": ""}}
+	to retry, use: --limit @/home/vagrant/installcentos/openshift-ansible/playbooks/deploy_cluster.retry
+
+PLAY RECAP ********************************************************************************************************************************************************************************************************************************
+10.0.2.15                  : ok=1012 changed=387  unreachable=0    failed=1
+localhost                  : ok=12   changed=0    unreachable=0    failed=0
+
+
+INSTALLER STATUS **************************************************************************************************************************************************************************************************************************
+Initialization              : Complete (0:00:12)
+	[DEPRECATION WARNING]: The following are deprecated variables and will be no longer be used in the next minor release. Please update your inventory accordingly.
+	openshift_node_kubelet_args
+Health Check                : Complete (0:00:12)
+Node Bootstrap Preparation  : Complete (0:02:40)
+etcd Install                : Complete (0:00:30)
+Master Install              : Complete (0:03:38)
+Master Additional Install   : Complete (0:00:32)
+Node Join                   : Complete (0:00:08)
+Hosted Install              : Complete (0:00:49)
+Web Console Install         : Complete (0:00:46)
+Metrics Install             : Complete (0:01:32)
+Logging Install             : Complete (0:02:19)
+Service Catalog Install     : In Progress (0:03:08)
+	This phase can be restarted by running: playbooks/openshift-service-catalog/config.yml
+
+
+Failure summary:
+
+
+  1. Hosts:    10.0.2.15
+     Play:     Service Catalog
+     Task:     Set Controller Manager service
+     Message:  {u'cmd': u'/usr/bin/oc get service controller-manager -o json -n kube-service-catalog', u'returncode': 1, u'results': [{}], u'stderr': u'Unable to connect to the server: net/http: TLS handshake timeout\n', u'stdout': u''}
+Adding password for user slm
+cluster role "cluster-admin" added: "slm"
+******
+* Your console is https://console.192.168.56.101.sslip.io:8443
+* Your username is slm
+* Your password is password
+*
+* Login using:
+*
+$ oc login -u slm -p password https://console.192.168.56.101.sslip.io:8443/
+******
+Login successful.
+
+You have access to the following projects and can switch between them with 'oc project <projectname>':
+
+  * default
+    kube-public
+    kube-service-catalog
+    kube-system
+    management-infra
+    openshift
+    openshift-infra
+    openshift-logging
+    openshift-node
+    openshift-sdn
+    openshift-web-console
+
+Using project "default".
+[root@box-101 installcentos]#
+```
