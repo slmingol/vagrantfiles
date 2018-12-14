@@ -1,6 +1,11 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
+unless Vagrant.has_plugin?('vagrant-vbguest')
+  system('vagrant plugin install vagrant-vbguest') || exit!
+  exit system('vagrant', *ARGV)
+end
+
 # All Vagrant configuration is done below. The "2" in Vagrant.configure
 # configures the configuration version (we support older styles for
 # backwards compatibility). Please don't change it unless you know what
@@ -35,7 +40,6 @@ Vagrant.configure("2") do |config|
   # Create a private network, which allows host-only access to the machine
   # using a specific IP.
   config.vm.network "private_network", ip: "192.168.56.101"
-  #config.vm.network "private_network", ip: "192.168.57.101"
   #config.vm.network "private_network", ip: "192.168.58.101"
   
 
@@ -44,12 +48,15 @@ Vagrant.configure("2") do |config|
   # your network.
   # config.vm.network "public_network"
   # config.vm.network "public_network", bridge: "en0: Wi-Fi (Wireless)", use_dhcp_assigned_default_route: true
+  config.vm.network "public_network", bridge: "en0: Wi-Fi (Wireless)", auto_config: false
+  config.vm.network "public_network", bridge: "en0: Wi-Fi (Wireless)", auto_config: false
 
   # Share an additional folder to the guest VM. The first argument is
   # the path on the host to the actual folder. The second argument is
   # the path on the guest to mount the folder. And the optional third
   # argument is a set of non-required options.
   # config.vm.synced_folder "../data", "/vagrant_data"
+  config.vm.synced_folder ".", "/vagrant", type: "virtualbox"
 
   # Provider-specific configuration so you can fine-tune various
   # backing providers for Vagrant. These expose provider-specific options.
@@ -71,5 +78,6 @@ Vagrant.configure("2") do |config|
   # documentation for more information about their specific syntax and use.
   config.vm.provision "shell", inline: <<-SHELL
     yum install -y git vim socat tcpdump wget sysstat
+    yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
   SHELL
 end
