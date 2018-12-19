@@ -12,7 +12,7 @@ $ vagrant init centos/7
 $ vagrant up
 ```
 
-### Additional boxes
+### Additional box files
 * centos_7_1node_minikube
 * centos_7_1node_okd
 * centos_7_1node_openshift
